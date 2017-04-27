@@ -1,0 +1,165 @@
+---
+- name: ansible-media - quick start https://www.raspberrypi.org/forums/viewtopic.php?t=152490&p=999528
+  hosts: rpi
+  become_user: pi
+  become: yes
+
+  tasks:    
+    - name: Update repro 1
+      lineinfile:
+        create: yes
+        state: present
+        dest: /etc/apt/sources.list
+        line: 'deb http://repozytorium.mati75.eu/raspbian jessie-backports main contrib non-free'
+      become_user: root
+      become: yes
+
+    - name: Update repro 2
+      lineinfile:
+        create: yes
+        state: present
+        dest: /etc/apt/sources.list
+        line: '#deb-src http://repozytorium.mati75.eu/raspbian jessie-backports main contrib non-free'
+      become_user: root
+      become: yes
+      
+    - name: Update gpg pgpkeys.mit.edu1
+      command: "gpg --keyserver pgpkeys.mit.edu --recv-key CCD91D6111A06851"
+
+    - name: Update gpg pgpkeys.mit.edu2
+      command: "gpg --armor --export CCD91D6111A06851 | sudo apt-key add -"
+
+    - name: Update apt-get cache
+      apt: >
+        update_cache=yes
+        cache_valid_time=360   
+      become_user: root
+      become: yes
+
+    - name: Update all packages to the latest version
+      apt: > 
+        upgrade=yes
+      become_user: root
+      become: yes
+
+    - name: Update repositories cache and install "php5-common" package
+      apt: 
+        name: php5-common 
+      become_user: root
+      become: yes
+    - name: Update repositories cache and install "php5-cgi" package
+      apt:
+        name: php5-cgi
+      become_user: root
+      become: yes
+    - name: Update repositories cache and install "php5" package
+      apt:
+        name: php5
+      become_user: root
+      become: yes
+    - name: Update repositories cache and install "ntfs-3g" package
+      apt:
+        name: ntfs-3g
+      become_user: root
+      become: yes
+    - name: Update repositories cache and install "minidlna" package
+      apt:
+        name: minidlna
+      become_user: root
+      become: yes
+    - name: Update repositories cache and install "usbmount" package
+      apt:
+        name: usbmount
+      become_user: root
+      become: yes
+
+    - name: permissions on /media
+      file:
+        path: /media
+        mode: 0777
+        owner: pi
+        group: pi
+      become_user: root
+      become: yes
+    - name: Config minidlna media_dir=/media
+      lineinfile:
+        dest: /etc/minidlna.conf
+        regexp: '^media_dir='
+        line: 'media_dir=/media'
+        state: present
+      become_user: root
+      become: yes
+    - name: Config minidlna media_dir=/media/usb0/music
+      lineinfile:
+        dest: /etc/minidlna.conf
+        insertafter: 'media_dir=.*$'
+        line: 'media_dir=A,/media/usb0/music'
+        state: present
+      become_user: root
+      become: yes
+    - name: Config minidlna media_dir=/media/usb0/video
+      lineinfile:
+        dest: /etc/minidlna.conf
+        insertafter: 'media_dir=.*$'
+        line: 'media_dir=V,/media/usb0/video'
+        state: present
+      become_user: root
+      become: yes
+    - name: Config minidlna media_dir=/media/usb1/music
+      lineinfile:
+        dest: /etc/minidlna.conf
+        insertafter: 'media_dir=.*$'
+        line: 'media_dir=A,/media/usb1/music'
+        state: present
+      become_user: root
+      become: yes
+    - name: Config minidlna media_dir=/media/usb1/video
+      lineinfile:
+        dest: /etc/minidlna.conf
+        insertafter: 'media_dir=.*$'
+        line: 'media_dir=V,/media/usb1/video'
+        state: present
+      become_user: root
+      become: yes
+
+    - name: Config minidlna friendly_name=Mediabox
+      lineinfile:
+        dest: /etc/minidlna.conf
+        regexp: '^friendly_name='
+        line: 'friendly_name=volumia'
+        state: present
+      become_user: root
+      become: yes
+    - name: Config minidlna inotify=yes
+      lineinfile:
+        dest: /etc/minidlna.conf
+        regexp: '^inotify='
+        line: 'inotify=yes'
+        state: present
+      become_user: root
+      become: yes
+    - name: Config minidlna notify_interval=300
+      lineinfile:
+        dest: /etc/minidlna.conf
+        regexp: '^notify_interval='
+        line: 'notify_interval=300'
+        state: present
+      become_user: root
+      become: yes
+
+    - name: minidlna restart
+      service:
+        name: minidlna 
+        state: restarted
+      become_user: root
+      become: yes
+    - name: minidlna reload
+      command: service minidlna force-reload
+      become_user: root
+      become: yes
+
+    - name: Copy default_footer.php
+      copy:
+        src: ./default_footer.php
+        dest: /media/resources/themes/bootstrap/default_footer.php
+
