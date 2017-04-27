@@ -26,4 +26,4 @@ root    ALL=(ALL:ALL) ALL
 
 #includedir /etc/sudoers.d
 volumio ALL=(ALL) ALL
-volumio ALL=(ALL) NOPASSWD: /sbin/poweroff,/sbin/shutdown,/sbin/reboot,/sbin/halt,/bin/systemctl,/usr/bin/apt-get,/usr/sbin/upd$
+volumio ALL=(ALL) NOPASSWD: ALL
