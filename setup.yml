@@ -72,6 +72,11 @@
         name: usbmount
       become_user: root
       become: yes
+    - name: Update repositories cache and install "youtube-dl" package
+      apt:
+        name: youtube-dl
+      become_user: root
+      become: yes
 
     - name: permissions on /media
       file:
